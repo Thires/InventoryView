@@ -8,4 +8,4 @@ Removed a/an/some/several<br>
 Made a second window where all searches will show up<br>
 Added search count<br>
 Added right click options for second window<br>
-Made reset clear all<br>
+Made reset clear all
