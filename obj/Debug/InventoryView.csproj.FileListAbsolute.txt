@@ -1,9 +1,0 @@
-C:\Users\Gyp\Desktop\Genie Client 3\Plugins\InventoryView\InventoryView\bin\Debug\InventoryView.dll
-C:\Users\Gyp\Desktop\Genie Client 3\Plugins\InventoryView\InventoryView\bin\Debug\InventoryView.pdb
-C:\Users\Gyp\Desktop\Genie Client 3\Plugins\InventoryView\InventoryView\bin\Debug\Interfaces.dll
-C:\Users\Gyp\Desktop\Genie Client 3\Plugins\InventoryView\InventoryView\obj\Debug\InventoryView.InventoryViewForm.resources
-C:\Users\Gyp\Desktop\Genie Client 3\Plugins\InventoryView\InventoryView\obj\Debug\InventoryView.csproj.GenerateResource.cache
-C:\Users\Gyp\Desktop\Genie Client 3\Plugins\InventoryView\InventoryView\obj\Debug\InventoryView.csproj.CoreCompileInputs.cache
-C:\Users\Gyp\Desktop\Genie Client 3\Plugins\InventoryView\InventoryView\obj\Debug\InventoryView.dll
-C:\Users\Gyp\Desktop\Genie Client 3\Plugins\InventoryView\InventoryView\obj\Debug\InventoryView.pdb
-C:\Users\Gyp\Desktop\Genie Client 3\Plugins\InventoryView\InventoryView\obj\Debug\InventoryView.csproj.AssemblyReference.cache
