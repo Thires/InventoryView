@@ -1,4 +1,4 @@
-![inventoryview](https://user-images.githubusercontent.com/28072996/148909614-f7f8e0f9-cbb8-467f-8abd-2ee6c009ce34.PNG)
+![inventoryview](https://user-images.githubusercontent.com/28072996/148909919-7944aa0a-d38f-4ffb-87b3-14aff43555f3.PNG)
 
 
 # InventoryView
