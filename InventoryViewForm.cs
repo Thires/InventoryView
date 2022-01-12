@@ -273,7 +273,6 @@ namespace InventoryView
                 }
                 txt.Remove(txt.Length - 1, 1);
                 Clipboard.SetData(System.Windows.Forms.DataFormats.Text, txt.ToString());
-                //Clipboard.SetData(System.Windows.Forms.DataFormats.Text, Regex.Replace(txt.ToString(), @"\s\(closed\)", ""));
             }
         }
 
