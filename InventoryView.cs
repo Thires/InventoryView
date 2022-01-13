@@ -27,7 +27,7 @@ namespace InventoryView
 
         public string Name => "Inventory View";
 
-        public string Version => "1.8";
+        public string Version => "1.7";
 
         public string Description => "Stores your character inventory and allows you to search items across characters.";
 
