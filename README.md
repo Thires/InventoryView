@@ -2,15 +2,17 @@
 
 
 # InventoryView
-Added family vault<br>
-Made it so you don't need vault book, will use vault standard<br>
-Can still use vault book<br>
-Will return books/register back to containers they are taken from<br>
-Made search not case sensitive<br>
-Removed a/an/some/several<br>
-Made a second window where all searches will show up<br>
-Added search count<br>
-Added right click options for second window<br>
+* Added family vault
+* Made it so you don't need vault book, will use vault standard
+* Can still use vault book
+* Will return books/register back to containers they are taken from
+* Made search not case sensitive
+* Removed a/an/some/several
+* Made a second window where all searches will show up
+* Added search count
+* Added right click options for second window
+* Added matches for when using vault book and vault is empty
+
 
 This plugin will record the items that each of your characters has in their inventory, vault (if you have a vault book), and home (if you have one) and make them searchable in a form.
 
