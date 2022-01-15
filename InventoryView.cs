@@ -241,17 +241,11 @@ namespace InventoryView
                     if (text.StartsWith("The last note indicates that your vault contains"))
                     {
                         ScanMode = "FamilyStart";
-                        //_host.SendText("vault family");
                     }
                     else
                     {
                         // Determine how many levels down an item is based on the number of spaces before it.
                         // Anything greater than 4 levels down shows up at the same level as its parent.
-                        /*int spaces = text.Length - text.TrimStart().Length;
-                        int newlevel = 1;
-                        if (spaces > 4)
-                            newlevel += (spaces - 4) / 2;*/
-
 
                         int spaces = text.Length - text.TrimStart().Length;
                         int newlevel = 1;
@@ -353,7 +347,6 @@ namespace InventoryView
                     if (text.StartsWith("The last note indicates that your vault contains"))
                     {
                         ScanMode = "DeedStart";
-                        //_host.SendText("vault family");
                     }
                     else
                     {
