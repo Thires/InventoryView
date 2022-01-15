@@ -134,7 +134,7 @@ namespace InventoryView
                         }
                         level = newlevel;
                     }
-                } //end if Inventory
+                } //end of Inventory
                 else if (ScanMode == "VaultStart")
                 {
                     // Get the vault book & read it.
@@ -167,7 +167,7 @@ namespace InventoryView
                             _host.SendText("put my vault book in my " + Place);
                             _host.SendText("vault standard");
                     }
-                } //end if VaultStart
+                } //end of VaultStart
                 else if (ScanMode == "Vault")
                 {
                     // This text indicates the end of the vault inventory list.
@@ -234,7 +234,7 @@ namespace InventoryView
                             ScanMode = "FamilyStart";
                             _host.SendText("vault family");
                     }
-                } //end if VaultStandardStart
+                } //end of VaultStandardStart
                 else if (ScanMode == "Standard")
                 {
                     // This text indicates the end of the vault inventory list.
@@ -246,7 +246,6 @@ namespace InventoryView
                     {
                         // Determine how many levels down an item is based on the number of spaces before it.
                         // Anything greater than 4 levels down shows up at the same level as its parent.
-
                         int spaces = text.Length - text.TrimStart().Length;
                         int newlevel = 1;
                         switch (spaces)
@@ -267,7 +266,6 @@ namespace InventoryView
                                 newlevel = 1;
                                 break;
                         }
-
 
                         string tap = trimtext;
                         if (tap.StartsWith("-")) tap = tap.Remove(0, 1);
@@ -339,7 +337,7 @@ namespace InventoryView
                             _host.SendText("get my deed registe");
                         }
                     }
-                } //end if VaultFamilyStart
+                } //end of VaultFamilyStart
                 else if (ScanMode == "FamilyVault")
                 {
                     // This text indicates the end of the vault inventory list.
@@ -411,7 +409,7 @@ namespace InventoryView
                         _host.SendText("get my deed register");
                     }
 
-                    // Get the registry & read it.
+                    // Get the register & read it.
                     Match match1 = Regex.Match(trimtext, @"^You get a.*deed register.*from");
                     if (match1.Success || trimtext == "You are already holding that.")
                     {
@@ -460,7 +458,7 @@ namespace InventoryView
 
                         lastItem = currentData.AddItem(new ItemData() { tap = tap, storage = false });
                     }
-                } //end if Deed
+                } //end of Deed
                 else if (ScanMode == "HomeStart")
                 {
                     if (trimtext == "The home contains:") // This text appears at the beginning of the home list.
@@ -629,7 +627,7 @@ namespace InventoryView
                         level = newlevel;
 
                     }
-                } //end if Trader
+                } //end of Trader
             }
 
             return text;
