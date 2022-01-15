@@ -152,7 +152,7 @@ namespace InventoryView
                         characterData.Add(currentData);
                         level = 1;
                     }
-                    // If you don't have a vault book or you can't read a vault book, it skips to checking your deed register.
+                    // If you don't have a vault book or you can't read a vault book, it skips to checking use of vault standard.
 				    else if (trimtext == "What were you referring to?")
                     {
                             ScanMode = "StandardStart";                            
@@ -226,7 +226,7 @@ namespace InventoryView
                         characterData.Add(currentData);
                         level = 1;
                     }
-                    // If you don't have a vault book or you can't read a vault book, it skips to checking your deed register.
+                    // If you don't have access to vault standard, it skips to checking for family vault.
 
                     else if (trimtext == "You currently do not have access to VAULT STANDARD or VAULT FAMILY.  You will need to use VAULT PAY CONVERT to convert an urchin runner for this purpose." || trimtext == "You currently have no contract with the representative of the local Traders' Guild for this service." || trimtext == "You have no arrangements with the local Traders' Guild representative for urchin runners." || trimtext == "You can't access your vault at this time." || trimtext == "You currently do not have a vault rented.")
                     {
@@ -275,7 +275,6 @@ namespace InventoryView
 								if (tap[tap.Length - 1] == '.') tap = tap.TrimEnd('.');
 								tap = Regex.Replace(tap, @"^(an|a|some|several)\s", "");
 								tap = Regex.Replace(tap, @"\)\s{1,2}(an|a|some|several)\s", ") ");
-								//tap = Regex.Replace(tap, @"^(an|a|some|several)\s", "");
                         if (newlevel == 1)
                         {
                             lastItem = currentData.AddItem(new ItemData() { tap = tap, storage = true });
@@ -320,7 +319,7 @@ namespace InventoryView
                         characterData.Add(currentData);
                         level = 1;
                     }
-                    // If you don't have a vault book or you can't read a vault book, it skips to checking your deed register.
+                    // If you don't have access to family vault, it skips to checking your deed register.
 
                     else if (trimtext == "You currently do not have access to VAULT STANDARD or VAULT FAMILY.  You will need to use VAULT PAY CONVERT to convert an urchin runner for this purpose." || trimtext == "You have no arrangements with the local Traders' Guild representative for urchin runners." || trimtext == "You currently have no contract with the representative of the local Traders' Guild for this service." || trimtext == "Now may not be the best time for that." || trimtext == "You look around, but cannot find a nearby urchin to send to effect the transfer." || trimtext == "You can't access the family vault at this time." || trimtext == "You can't access your vault at this time." || trimtext == "You currently do not have a vault rented.")
                     {
@@ -412,7 +411,7 @@ namespace InventoryView
                         _host.SendText("get my deed register");
                     }
 
-                    // Get the vault book & read it.
+                    // Get the registry & read it.
                     Match match1 = Regex.Match(trimtext, @"^You get a.*deed register.*from");
                     if (match1.Success || trimtext == "You are already holding that.")
                     {
@@ -454,7 +453,6 @@ namespace InventoryView
                     }
                     else
                     {
-                        //string tap = trimtext.Substring(trimtext.IndexOf("--") + 3);
                         string tap = Regex.Replace(trimtext, @"^(\d+\s--\s)(an|a|some|several)\s", "");
 
                         if (tap[tap.Length - 1] == '.')
@@ -506,7 +504,7 @@ namespace InventoryView
                             SaveSettings();
                         }
                     }
-                } //end if HomeStart
+                } //end of HomeStart
                 else if (ScanMode == "Home")
                 {
                     if (trimtext == ">") // There is no text after the home list, so watch for the next >
@@ -538,7 +536,7 @@ namespace InventoryView
                         tap = Regex.Replace(tap, @"^(an|a|some|several)\s", "");
                         lastItem = currentData.AddItem(new ItemData() { tap = tap, storage = true });
                     }
-                } //end if Home
+                } //end of Home
                 else if (ScanMode == "TraderStart")
                 {                    
                     // Get the storage book & read it.
@@ -565,7 +563,7 @@ namespace InventoryView
                         _host.SendText("#parse InventoryView scan complete");
                         SaveSettings();
                     }
-                } // end if trader start
+                } // end of trader start
                 else if (ScanMode == "Trader")
                 {
                     // This text indicates the end of the vault inventory list.
