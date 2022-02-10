@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace InventoryView
@@ -40,16 +41,16 @@ namespace InventoryView
         private ToolStripMenuItem copyToolStripMenuItem;
         private ToolStripMenuItem wikiToolStripMenuItem;
         private ToolStripMenuItem copyAllToolStripMenuItem;
-        private ToolStripMenuItem copySelectedToolStripMenuItem;
         private bool clickSearch;
         private ToolStripMenuItem wikiLookupToolStripMenuItem;
+        private ToolStripMenuItem copySelectedToolStripMenuItem;
         private ListBox listBox = new ListBox();
 
         public InventoryViewForm() => InitializeComponent();
 
         private void InventoryViewForm_Load(object sender, EventArgs e) => BindData();
 
-        private void BindData()
+        /*private void BindData()
         {
             chkCharacters.Items.Clear();
             tv.Nodes.Clear();
@@ -67,7 +68,30 @@ namespace InventoryView
                     PopulateTree(treeNode2, characterData.items);
                 }
             }
+        }*/
+
+        private void BindData()
+        {
+            chkCharacters.Items.Clear();
+            tv.Nodes.Clear();
+            // Get a distinct character list and load them into the checked list box... which is currently not shown/used.
+            var characters = Class1.characterData.Select(tbl => tbl.name).Distinct().ToList();
+            characters.Sort();
+
+            // Recursively load all the items into the tree
+            foreach (var character in characters)
+            {
+                chkCharacters.Items.Add(character, true);
+                TreeNode charNode = tv.Nodes.Add(character);
+                foreach (var source in Class1.characterData.Where(tbl => tbl.name == character))
+                {
+                    TreeNode sourceNode = charNode.Nodes.Add(source.source);
+                    sourceNode.ToolTipText = sourceNode.FullPath;
+                    PopulateTree(sourceNode, source.items);
+                }
+            }
         }
+
 
         private void PopulateTree(TreeNode treeNode, List<ItemData> itemList)
         {
@@ -163,7 +187,8 @@ namespace InventoryView
                 int num = (int)MessageBox.Show("Select an item to lookup.");
             }
             else
-                Process.Start(string.Format("https://drservice.info/wiki.ashx?tap={0}", (object)Regex.Replace(tv.SelectedNode.Text, @"\(\d+\)\s|\s\(closed\)", "")));
+                //Process.Start(string.Format("https://drservice.info/wiki.ashx?tap={0}", (object)Regex.Replace(tv.SelectedNode.Text, @"\(\d+\)\s|\s\(closed\)", "")));
+            Process.Start(string.Format("https://elanthipedia.play.net/index.php?search={0}", (object)Regex.Replace(tv.SelectedNode.Text, @"\(\d+\)\s|\s\(closed\)", "")));
         }
 
         private void Wiki_Click(object sender, EventArgs e)
@@ -173,7 +198,8 @@ namespace InventoryView
                 int num = (int)MessageBox.Show("Select an item to lookup.");
             }
             else
-                Process.Start(string.Format("https://drservice.info/wiki.ashx?tap={0}", (object)Regex.Replace(tv.SelectedNode.Text, @"\(\d+\)\s|\s\(closed\)", "")));
+                //Process.Start(string.Format("https://drservice.info/wiki.ashx?tap={0}", (object)Regex.Replace(tv.SelectedNode.Text, @"\(\d+\)\s|\s\(closed\)", "")));
+                Process.Start(string.Format("https://elanthipedia.play.net/index.php?search={0}", (object)Regex.Replace(tv.SelectedNode.Text, @"\(\d+\)\s|\s\(closed\)", "")));
         }
 
         private void btnReset_Click(object sender, EventArgs e)
@@ -227,14 +253,14 @@ namespace InventoryView
 
         private void btnScan_Click(object sender, EventArgs e)
         {
-            InventoryView._host.SendText("/InventoryView scan");
+            Class1._host.SendText("/InventoryView scan");
             Close();
         }
 
         private void btnReload_Click(object sender, EventArgs e)
         {
-            InventoryView.LoadSettings();
-            InventoryView._host.EchoText("Inventory reloaded.");
+            Class1.LoadSettings();
+            Class1._host.EchoText("Inventory reloaded.");
             BindData();
         }
 
@@ -244,20 +270,20 @@ namespace InventoryView
         {
             List<string> branchText = new List<string>();
             branchText.Add(Regex.Replace(tv.SelectedNode.Text, @"\(\d+\)\s", ""));
-            copyBranchText(tv.SelectedNode.Nodes, branchText, 1);
+            CopyBranchText(tv.SelectedNode.Nodes, branchText, 1);
             Clipboard.SetText(string.Join("\r\n", branchText.ToArray()));
         }
 
-        private void copyBranchText(TreeNodeCollection nodes, List<string> branchText, int level)
+        private void CopyBranchText(TreeNodeCollection nodes, List<string> branchText, int level)
         {
             foreach (TreeNode node in nodes)
             {
                 branchText.Add(new string('\t', level) + Regex.Replace(node.Text, @"\(\d+\)\s", ""));
-                copyBranchText(node.Nodes, branchText, level + 1);
+                CopyBranchText(node.Nodes, branchText, level + 1);
             }
         }
 
-        private void listBox_Copy_Click(object sender, EventArgs e)
+        private void ListBox_Copy_Click(object sender, EventArgs e)
         {
             if (lb1.SelectedItem == null)
             {
@@ -276,7 +302,7 @@ namespace InventoryView
             }
         }
 
-        public void listBox_Copy_All_Click(Object sender, EventArgs e)
+        public void ListBox_Copy_All_Click(Object sender, EventArgs e)
         {
             if (clickSearch == false)
             {
@@ -295,7 +321,7 @@ namespace InventoryView
             }
         }
 
-        public void listBox_Copy_All_Selected_Click(Object sender, EventArgs e)
+        public void ListBox_Copy_All_Selected_Click(Object sender, EventArgs e)
         {
             if (lb1.SelectedItem == null)
             {
@@ -314,17 +340,17 @@ namespace InventoryView
             }
         }
 
-        private void listbox_Wiki_Click(object sender, EventArgs e)
+        private void Listbox_Wiki_Click(object sender, EventArgs e)
         {
             if (lb1.SelectedItem == null)
             {
                 int num = (int)MessageBox.Show("Select an item to lookup.");
             }
             else
-                Process.Start(string.Format("https://drservice.info/wiki.ashx?tap={0}", (object)lb1.SelectedItem.ToString().Replace(" (closed)", "")));
+                Process.Start(string.Format("https://elanthipedia.play.net/index.php?search={0}", (object)Regex.Replace(tv.SelectedNode.Text, @"\(\d+\)\s|\s\(closed\)", "")));
         }
 
-        private void lb1_MouseDown(object sender, MouseEventArgs e)
+        private void Lb1_MouseDown(object sender, MouseEventArgs e)
         {
             if (Control.ModifierKeys == Keys.Control || (Control.ModifierKeys == Keys.Control || Control.ModifierKeys == Keys.ShiftKey || e.Button == MouseButtons.Left))
             {
@@ -421,300 +447,300 @@ namespace InventoryView
 
         private void InitializeComponent()
         {
-            components = new System.ComponentModel.Container();
-            tv = new System.Windows.Forms.TreeView();
-            txtSearch = new System.Windows.Forms.TextBox();
-            chkCharacters = new System.Windows.Forms.CheckedListBox();
-            lblSearch = new System.Windows.Forms.Label();
-            lblFound = new System.Windows.Forms.Label();
-            btnSearch = new System.Windows.Forms.Button();
-            btnExpand = new System.Windows.Forms.Button();
-            btnCollapse = new System.Windows.Forms.Button();
-            btnWiki = new System.Windows.Forms.Button();
-            btnReset = new System.Windows.Forms.Button();
-            btnFindNext = new System.Windows.Forms.Button();
-            btnFindPrev = new System.Windows.Forms.Button();
-            btnScan = new System.Windows.Forms.Button();
-            btnReload = new System.Windows.Forms.Button();
-            btnExport = new System.Windows.Forms.Button();
-            copyTapToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            exportBranchToFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(components);
-            wikiLookupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            lb1 = new System.Windows.Forms.ListBox();
-            listBox_Menu = new System.Windows.Forms.ContextMenuStrip(components);
-            copyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            wikiToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            copyAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            copySelectedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            contextMenuStrip1.SuspendLayout();
-            listBox_Menu.SuspendLayout();
-            SuspendLayout();
+            this.components = new System.ComponentModel.Container();
+            this.tv = new System.Windows.Forms.TreeView();
+            this.txtSearch = new System.Windows.Forms.TextBox();
+            this.chkCharacters = new System.Windows.Forms.CheckedListBox();
+            this.lblSearch = new System.Windows.Forms.Label();
+            this.lblFound = new System.Windows.Forms.Label();
+            this.btnSearch = new System.Windows.Forms.Button();
+            this.btnExpand = new System.Windows.Forms.Button();
+            this.btnCollapse = new System.Windows.Forms.Button();
+            this.btnWiki = new System.Windows.Forms.Button();
+            this.btnReset = new System.Windows.Forms.Button();
+            this.btnFindNext = new System.Windows.Forms.Button();
+            this.btnFindPrev = new System.Windows.Forms.Button();
+            this.btnScan = new System.Windows.Forms.Button();
+            this.btnReload = new System.Windows.Forms.Button();
+            this.btnExport = new System.Windows.Forms.Button();
+            this.copyTapToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exportBranchToFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.wikiLookupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.lb1 = new System.Windows.Forms.ListBox();
+            this.listBox_Menu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.copyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.wikiToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.copyAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.copySelectedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.contextMenuStrip1.SuspendLayout();
+            this.listBox_Menu.SuspendLayout();
+            this.SuspendLayout();
             // 
             // tv
             // 
-            tv.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.tv.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            tv.Location = new System.Drawing.Point(5, 55);
-            tv.Name = "tv";
-            tv.ShowNodeToolTips = true;
-            tv.Size = new System.Drawing.Size(612, 407);
-            tv.TabIndex = 10;
-            tv.MouseUp += new System.Windows.Forms.MouseEventHandler(tv_MouseUp);
+            this.tv.Location = new System.Drawing.Point(5, 55);
+            this.tv.Name = "tv";
+            this.tv.ShowNodeToolTips = true;
+            this.tv.Size = new System.Drawing.Size(612, 407);
+            this.tv.TabIndex = 10;
+            this.tv.MouseUp += new System.Windows.Forms.MouseEventHandler(this.tv_MouseUp);
             // 
             // txtSearch
             // 
-            txtSearch.Location = new System.Drawing.Point(62, 18);
-            txtSearch.Name = "txtSearch";
-            txtSearch.Size = new System.Drawing.Size(262, 20);
-            txtSearch.TabIndex = 1;
+            this.txtSearch.Location = new System.Drawing.Point(62, 18);
+            this.txtSearch.Name = "txtSearch";
+            this.txtSearch.Size = new System.Drawing.Size(262, 20);
+            this.txtSearch.TabIndex = 1;
             // 
             // chkCharacters
             // 
-            chkCharacters.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            chkCharacters.FormattingEnabled = true;
-            chkCharacters.Location = new System.Drawing.Point(974, 41);
-            chkCharacters.Name = "chkCharacters";
-            chkCharacters.Size = new System.Drawing.Size(136, 19);
-            chkCharacters.TabIndex = 9;
-            chkCharacters.Visible = false;
+            this.chkCharacters.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.chkCharacters.FormattingEnabled = true;
+            this.chkCharacters.Location = new System.Drawing.Point(974, 41);
+            this.chkCharacters.Name = "chkCharacters";
+            this.chkCharacters.Size = new System.Drawing.Size(136, 19);
+            this.chkCharacters.TabIndex = 9;
+            this.chkCharacters.Visible = false;
             // 
             // lblSearch
             // 
-            lblSearch.AutoSize = true;
-            lblSearch.Location = new System.Drawing.Point(12, 21);
-            lblSearch.Name = "lblSearch";
-            lblSearch.Size = new System.Drawing.Size(44, 13);
-            lblSearch.TabIndex = 0;
-            lblSearch.Text = "Search:";
+            this.lblSearch.AutoSize = true;
+            this.lblSearch.Location = new System.Drawing.Point(12, 21);
+            this.lblSearch.Name = "lblSearch";
+            this.lblSearch.Size = new System.Drawing.Size(44, 13);
+            this.lblSearch.TabIndex = 0;
+            this.lblSearch.Text = "Search:";
             // 
             // lblFound
             // 
-            lblFound.AutoSize = true;
-            lblFound.Location = new System.Drawing.Point(353, 42);
-            lblFound.Name = "lblFound";
-            lblFound.Size = new System.Drawing.Size(49, 13);
-            lblFound.TabIndex = 0;
-            lblFound.Text = "Found: 0";
+            this.lblFound.AutoSize = true;
+            this.lblFound.Location = new System.Drawing.Point(353, 42);
+            this.lblFound.Name = "lblFound";
+            this.lblFound.Size = new System.Drawing.Size(49, 13);
+            this.lblFound.TabIndex = 0;
+            this.lblFound.Text = "Found: 0";
             // 
             // btnSearch
             // 
-            btnSearch.Location = new System.Drawing.Point(353, 16);
-            btnSearch.Name = "btnSearch";
-            btnSearch.Size = new System.Drawing.Size(75, 23);
-            btnSearch.TabIndex = 2;
-            btnSearch.Text = "Search";
-            btnSearch.UseVisualStyleBackColor = true;
-            btnSearch.Click += new System.EventHandler(btnSearch_Click);
+            this.btnSearch.Location = new System.Drawing.Point(353, 16);
+            this.btnSearch.Name = "btnSearch";
+            this.btnSearch.Size = new System.Drawing.Size(75, 23);
+            this.btnSearch.TabIndex = 2;
+            this.btnSearch.Text = "Search";
+            this.btnSearch.UseVisualStyleBackColor = true;
+            this.btnSearch.Click += new System.EventHandler(this.btnSearch_Click);
             // 
             // btnExpand
             // 
-            btnExpand.Location = new System.Drawing.Point(596, 5);
-            btnExpand.Name = "btnExpand";
-            btnExpand.Size = new System.Drawing.Size(75, 23);
-            btnExpand.TabIndex = 6;
-            btnExpand.Text = "Expand All";
-            btnExpand.UseVisualStyleBackColor = true;
-            btnExpand.Click += new System.EventHandler(btnExpand_Click);
+            this.btnExpand.Location = new System.Drawing.Point(596, 5);
+            this.btnExpand.Name = "btnExpand";
+            this.btnExpand.Size = new System.Drawing.Size(75, 23);
+            this.btnExpand.TabIndex = 6;
+            this.btnExpand.Text = "Expand All";
+            this.btnExpand.UseVisualStyleBackColor = true;
+            this.btnExpand.Click += new System.EventHandler(this.btnExpand_Click);
             // 
             // btnCollapse
             // 
-            btnCollapse.Location = new System.Drawing.Point(596, 27);
-            btnCollapse.Name = "btnCollapse";
-            btnCollapse.Size = new System.Drawing.Size(75, 23);
-            btnCollapse.TabIndex = 7;
-            btnCollapse.Text = "Collapse All";
-            btnCollapse.UseVisualStyleBackColor = true;
-            btnCollapse.Click += new System.EventHandler(btnCollapse_Click);
+            this.btnCollapse.Location = new System.Drawing.Point(596, 27);
+            this.btnCollapse.Name = "btnCollapse";
+            this.btnCollapse.Size = new System.Drawing.Size(75, 23);
+            this.btnCollapse.TabIndex = 7;
+            this.btnCollapse.Text = "Collapse All";
+            this.btnCollapse.UseVisualStyleBackColor = true;
+            this.btnCollapse.Click += new System.EventHandler(this.btnCollapse_Click);
             // 
             // btnWiki
             // 
-            btnWiki.Location = new System.Drawing.Point(677, 16);
-            btnWiki.Name = "btnWiki";
-            btnWiki.Size = new System.Drawing.Size(75, 23);
-            btnWiki.TabIndex = 8;
-            btnWiki.Text = "Wiki Lookup";
-            btnWiki.UseVisualStyleBackColor = true;
-            btnWiki.Click += new System.EventHandler(btnWiki_Click);
+            this.btnWiki.Location = new System.Drawing.Point(677, 16);
+            this.btnWiki.Name = "btnWiki";
+            this.btnWiki.Size = new System.Drawing.Size(75, 23);
+            this.btnWiki.TabIndex = 8;
+            this.btnWiki.Text = "Wiki Lookup";
+            this.btnWiki.UseVisualStyleBackColor = true;
+            this.btnWiki.Click += new System.EventHandler(this.btnWiki_Click);
             // 
             // btnReset
             // 
-            btnReset.Location = new System.Drawing.Point(515, 16);
-            btnReset.Name = "btnReset";
-            btnReset.Size = new System.Drawing.Size(75, 23);
-            btnReset.TabIndex = 5;
-            btnReset.Text = "Reset";
-            btnReset.UseVisualStyleBackColor = true;
-            btnReset.Visible = false;
-            btnReset.Click += new System.EventHandler(btnReset_Click);
+            this.btnReset.Location = new System.Drawing.Point(515, 16);
+            this.btnReset.Name = "btnReset";
+            this.btnReset.Size = new System.Drawing.Size(75, 23);
+            this.btnReset.TabIndex = 5;
+            this.btnReset.Text = "Reset";
+            this.btnReset.UseVisualStyleBackColor = true;
+            this.btnReset.Visible = false;
+            this.btnReset.Click += new System.EventHandler(this.btnReset_Click);
             // 
             // btnFindNext
             // 
-            btnFindNext.Location = new System.Drawing.Point(434, 27);
-            btnFindNext.Name = "btnFindNext";
-            btnFindNext.Size = new System.Drawing.Size(75, 23);
-            btnFindNext.TabIndex = 4;
-            btnFindNext.Text = "Find Next";
-            btnFindNext.UseVisualStyleBackColor = true;
-            btnFindNext.Visible = false;
-            btnFindNext.Click += new System.EventHandler(btnFindNext_Click);
+            this.btnFindNext.Location = new System.Drawing.Point(434, 27);
+            this.btnFindNext.Name = "btnFindNext";
+            this.btnFindNext.Size = new System.Drawing.Size(75, 23);
+            this.btnFindNext.TabIndex = 4;
+            this.btnFindNext.Text = "Find Next";
+            this.btnFindNext.UseVisualStyleBackColor = true;
+            this.btnFindNext.Visible = false;
+            this.btnFindNext.Click += new System.EventHandler(this.btnFindNext_Click);
             // 
             // btnFindPrev
             // 
-            btnFindPrev.Location = new System.Drawing.Point(434, 5);
-            btnFindPrev.Name = "btnFindPrev";
-            btnFindPrev.Size = new System.Drawing.Size(75, 23);
-            btnFindPrev.TabIndex = 3;
-            btnFindPrev.Text = "Find Prev";
-            btnFindPrev.UseVisualStyleBackColor = true;
-            btnFindPrev.Visible = false;
-            btnFindPrev.Click += new System.EventHandler(btnFindPrev_Click);
+            this.btnFindPrev.Location = new System.Drawing.Point(434, 5);
+            this.btnFindPrev.Name = "btnFindPrev";
+            this.btnFindPrev.Size = new System.Drawing.Size(75, 23);
+            this.btnFindPrev.TabIndex = 3;
+            this.btnFindPrev.Text = "Find Prev";
+            this.btnFindPrev.UseVisualStyleBackColor = true;
+            this.btnFindPrev.Visible = false;
+            this.btnFindPrev.Click += new System.EventHandler(this.btnFindPrev_Click);
             // 
             // btnScan
             // 
-            btnScan.Location = new System.Drawing.Point(838, 16);
-            btnScan.Name = "btnScan";
-            btnScan.Size = new System.Drawing.Size(97, 23);
-            btnScan.TabIndex = 11;
-            btnScan.Text = "Scan Inventory";
-            btnScan.UseVisualStyleBackColor = true;
-            btnScan.Click += new System.EventHandler(btnScan_Click);
+            this.btnScan.Location = new System.Drawing.Point(838, 16);
+            this.btnScan.Name = "btnScan";
+            this.btnScan.Size = new System.Drawing.Size(97, 23);
+            this.btnScan.TabIndex = 11;
+            this.btnScan.Text = "Scan Inventory";
+            this.btnScan.UseVisualStyleBackColor = true;
+            this.btnScan.Click += new System.EventHandler(this.btnScan_Click);
             // 
             // btnReload
             // 
-            btnReload.Location = new System.Drawing.Point(941, 16);
-            btnReload.Name = "btnReload";
-            btnReload.Size = new System.Drawing.Size(97, 23);
-            btnReload.TabIndex = 12;
-            btnReload.Text = "Reload File";
-            btnReload.UseVisualStyleBackColor = true;
-            btnReload.Click += new System.EventHandler(btnReload_Click);
+            this.btnReload.Location = new System.Drawing.Point(941, 16);
+            this.btnReload.Name = "btnReload";
+            this.btnReload.Size = new System.Drawing.Size(97, 23);
+            this.btnReload.TabIndex = 12;
+            this.btnReload.Text = "Reload File";
+            this.btnReload.UseVisualStyleBackColor = true;
+            this.btnReload.Click += new System.EventHandler(this.btnReload_Click);
             // 
             // btnExport
             // 
-            btnExport.Location = new System.Drawing.Point(758, 16);
-            btnExport.Name = "btnExport";
-            btnExport.Size = new System.Drawing.Size(75, 23);
-            btnExport.TabIndex = 13;
-            btnExport.Text = "Export";
-            btnExport.UseVisualStyleBackColor = true;
-            btnExport.Click += new System.EventHandler(btnExport_Click);
+            this.btnExport.Location = new System.Drawing.Point(758, 16);
+            this.btnExport.Name = "btnExport";
+            this.btnExport.Size = new System.Drawing.Size(75, 23);
+            this.btnExport.TabIndex = 13;
+            this.btnExport.Text = "Export";
+            this.btnExport.UseVisualStyleBackColor = true;
+            this.btnExport.Click += new System.EventHandler(this.btnExport_Click);
             // 
             // copyTapToolStripMenuItem
             // 
-            copyTapToolStripMenuItem.Name = "copyTapToolStripMenuItem";
-            copyTapToolStripMenuItem.Size = new System.Drawing.Size(142, 22);
-            copyTapToolStripMenuItem.Text = "Copy Text";
-            copyTapToolStripMenuItem.Click += new System.EventHandler(copyTapToolStripMenuItem_Click);
+            this.copyTapToolStripMenuItem.Name = "copyTapToolStripMenuItem";
+            this.copyTapToolStripMenuItem.Size = new System.Drawing.Size(142, 22);
+            this.copyTapToolStripMenuItem.Text = "Copy Text";
+            this.copyTapToolStripMenuItem.Click += new System.EventHandler(this.copyTapToolStripMenuItem_Click);
             // 
             // exportBranchToFileToolStripMenuItem
             // 
-            exportBranchToFileToolStripMenuItem.Name = "exportBranchToFileToolStripMenuItem";
-            exportBranchToFileToolStripMenuItem.Size = new System.Drawing.Size(142, 22);
-            exportBranchToFileToolStripMenuItem.Text = "Copy Branch";
-            exportBranchToFileToolStripMenuItem.Click += new System.EventHandler(exportBranchToFileToolStripMenuItem_Click);
+            this.exportBranchToFileToolStripMenuItem.Name = "exportBranchToFileToolStripMenuItem";
+            this.exportBranchToFileToolStripMenuItem.Size = new System.Drawing.Size(142, 22);
+            this.exportBranchToFileToolStripMenuItem.Text = "Copy Branch";
+            this.exportBranchToFileToolStripMenuItem.Click += new System.EventHandler(this.exportBranchToFileToolStripMenuItem_Click);
             // 
             // contextMenuStrip1
             // 
-            contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            copyTapToolStripMenuItem,
-            exportBranchToFileToolStripMenuItem,
-            wikiLookupToolStripMenuItem});
-            contextMenuStrip1.Name = "contextMenuStrip1";
-            contextMenuStrip1.Size = new System.Drawing.Size(143, 70);
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.copyTapToolStripMenuItem,
+            this.exportBranchToFileToolStripMenuItem,
+            this.wikiLookupToolStripMenuItem});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(143, 70);
             // 
             // wikiLookupToolStripMenuItem
             // 
-            wikiLookupToolStripMenuItem.Name = "wikiLookupToolStripMenuItem";
-            wikiLookupToolStripMenuItem.Size = new System.Drawing.Size(142, 22);
-            wikiLookupToolStripMenuItem.Text = "Wiki Lookup";
-            wikiLookupToolStripMenuItem.Click += new System.EventHandler(Wiki_Click);
+            this.wikiLookupToolStripMenuItem.Name = "wikiLookupToolStripMenuItem";
+            this.wikiLookupToolStripMenuItem.Size = new System.Drawing.Size(142, 22);
+            this.wikiLookupToolStripMenuItem.Text = "Wiki Lookup";
+            this.wikiLookupToolStripMenuItem.Click += new System.EventHandler(this.Wiki_Click);
             // 
             // lb1
             // 
-            lb1.AllowDrop = true;
-            lb1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.lb1.AllowDrop = true;
+            this.lb1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            lb1.ContextMenuStrip = listBox_Menu;
-            lb1.FormattingEnabled = true;
-            lb1.Location = new System.Drawing.Point(624, 55);
-            lb1.Name = "lb1";
-            lb1.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            lb1.Size = new System.Drawing.Size(492, 407);
-            lb1.TabIndex = 10;
-            lb1.MouseDown += new System.Windows.Forms.MouseEventHandler(lb1_MouseDown);
+            this.lb1.ContextMenuStrip = this.listBox_Menu;
+            this.lb1.FormattingEnabled = true;
+            this.lb1.Location = new System.Drawing.Point(624, 55);
+            this.lb1.Name = "lb1";
+            this.lb1.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
+            this.lb1.Size = new System.Drawing.Size(492, 407);
+            this.lb1.TabIndex = 10;
+            this.lb1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Lb1_MouseDown);
             // 
             // listBox_Menu
             // 
-            listBox_Menu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            copyToolStripMenuItem,
-            wikiToolStripMenuItem,
-            copyAllToolStripMenuItem,
-            copySelectedToolStripMenuItem});
-            listBox_Menu.Name = "listBox_Menu";
-            listBox_Menu.Size = new System.Drawing.Size(167, 92);
+            this.listBox_Menu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.copyToolStripMenuItem,
+            this.wikiToolStripMenuItem,
+            this.copyAllToolStripMenuItem,
+            this.copySelectedToolStripMenuItem });
+            this.listBox_Menu.Name = "listBox_Menu";
+            this.listBox_Menu.Size = new System.Drawing.Size(181, 136);
             // 
             // copyToolStripMenuItem
             // 
-            copyToolStripMenuItem.Name = "copyToolStripMenuItem";
-            copyToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
-            copyToolStripMenuItem.Text = "Copy Selected";
-            copyToolStripMenuItem.Click += new System.EventHandler(listBox_Copy_Click);
+            this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
+            this.copyToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.copyToolStripMenuItem.Text = "Copy Selected";
+            this.copyToolStripMenuItem.Click += new System.EventHandler(this.ListBox_Copy_Click);
             // 
             // wikiToolStripMenuItem
             // 
-            wikiToolStripMenuItem.Name = "wikiToolStripMenuItem";
-            wikiToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
-            wikiToolStripMenuItem.Text = "Wiki Selected";
-            wikiToolStripMenuItem.Click += new System.EventHandler(listbox_Wiki_Click);
+            this.wikiToolStripMenuItem.Name = "wikiToolStripMenuItem";
+            this.wikiToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.wikiToolStripMenuItem.Text = "Wiki Selected";
+            this.wikiToolStripMenuItem.Click += new System.EventHandler(this.Listbox_Wiki_Click);
             // 
             // copyAllToolStripMenuItem
             // 
-            copyAllToolStripMenuItem.Name = "copyAllToolStripMenuItem";
-            copyAllToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
-            copyAllToolStripMenuItem.Text = "Copy All";
-            copyAllToolStripMenuItem.Click += new System.EventHandler(listBox_Copy_All_Click);
+            this.copyAllToolStripMenuItem.Name = "copyAllToolStripMenuItem";
+            this.copyAllToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.copyAllToolStripMenuItem.Text = "Copy All";
+            this.copyAllToolStripMenuItem.Click += new System.EventHandler(this.ListBox_Copy_All_Click);
             // 
             // copySelectedToolStripMenuItem
             // 
-            copySelectedToolStripMenuItem.Name = "copySelectedToolStripMenuItem";
-            copySelectedToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
-            copySelectedToolStripMenuItem.Text = "Copy All Selected";
-            copySelectedToolStripMenuItem.Click += new System.EventHandler(listBox_Copy_All_Selected_Click);
+            this.copySelectedToolStripMenuItem.Name = "copySelectedToolStripMenuItem";
+            this.copySelectedToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.copySelectedToolStripMenuItem.Text = "Copy All Selected";
+            this.copySelectedToolStripMenuItem.Click += new System.EventHandler(this.ListBox_Copy_All_Selected_Click);
             // 
             // InventoryViewForm
             // 
-            AcceptButton = btnSearch;
-            AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            AutoSize = true;
-            AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            ClientSize = new System.Drawing.Size(1122, 478);
-            Controls.Add(lb1);
-            Controls.Add(btnExport);
-            Controls.Add(btnReload);
-            Controls.Add(btnScan);
-            Controls.Add(btnFindNext);
-            Controls.Add(btnFindPrev);
-            Controls.Add(btnReset);
-            Controls.Add(btnWiki);
-            Controls.Add(btnCollapse);
-            Controls.Add(btnExpand);
-            Controls.Add(btnSearch);
-            Controls.Add(lblSearch);
-            Controls.Add(lblFound);
-            Controls.Add(chkCharacters);
-            Controls.Add(txtSearch);
-            Controls.Add(tv);
-            Name = "InventoryViewForm";
-            Text = "Inventory View";
-            Load += new System.EventHandler(InventoryViewForm_Load);
-            contextMenuStrip1.ResumeLayout(false);
-            listBox_Menu.ResumeLayout(false);
-            ResumeLayout(false);
-            PerformLayout();
+            this.AcceptButton = this.btnSearch;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoSize = true;
+            this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.ClientSize = new System.Drawing.Size(1122, 478);
+            this.Controls.Add(this.lb1);
+            this.Controls.Add(this.btnExport);
+            this.Controls.Add(this.btnReload);
+            this.Controls.Add(this.btnScan);
+            this.Controls.Add(this.btnFindNext);
+            this.Controls.Add(this.btnFindPrev);
+            this.Controls.Add(this.btnReset);
+            this.Controls.Add(this.btnWiki);
+            this.Controls.Add(this.btnCollapse);
+            this.Controls.Add(this.btnExpand);
+            this.Controls.Add(this.btnSearch);
+            this.Controls.Add(this.lblSearch);
+            this.Controls.Add(this.lblFound);
+            this.Controls.Add(this.chkCharacters);
+            this.Controls.Add(this.txtSearch);
+            this.Controls.Add(this.tv);
+            this.Name = "InventoryViewForm";
+            this.Text = "Inventory View";
+            this.Load += new System.EventHandler(this.InventoryViewForm_Load);
+            this.contextMenuStrip1.ResumeLayout(false);
+            this.listBox_Menu.ResumeLayout(false);
+            this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
