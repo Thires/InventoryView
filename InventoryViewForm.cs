@@ -347,7 +347,7 @@ namespace InventoryView
                 int num = (int)MessageBox.Show("Select an item to lookup.");
             }
             else
-                Process.Start(string.Format("https://elanthipedia.play.net/index.php?search={0}", (object)Regex.Replace(tv.SelectedNode.Text, @"\(\d+\)\s|\s\(closed\)", "")));
+                Process.Start(string.Format("https://elanthipedia.play.net/index.php?search={0}", (object)Regex.Replace((string)lb1.SelectedItem, @"\(\d+\)\s|\s\(closed\)", ""))); ;
         }
 
         private void Lb1_MouseDown(object sender, MouseEventArgs e)
@@ -359,6 +359,24 @@ namespace InventoryView
             else if (e.Button == MouseButtons.Left)
             {
                 lb1.SelectionMode = SelectionMode.One;
+            }
+        }
+
+        private void Lb1_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Right)
+                return;
+
+            if (lb1.SelectedItem != null)
+            {
+                if (Control.ModifierKeys == Keys.Control || (Control.ModifierKeys == Keys.Control || Control.ModifierKeys == Keys.ShiftKey || e.Button == MouseButtons.Right))
+                {
+                    lb1.SelectionMode = SelectionMode.MultiExtended;
+                }
+                else if (e.Button == MouseButtons.Right)
+                {
+                    lb1.SelectionMode = SelectionMode.One;
+                }
             }
         }
 
@@ -670,7 +688,8 @@ namespace InventoryView
             this.lb1.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
             this.lb1.Size = new System.Drawing.Size(492, 407);
             this.lb1.TabIndex = 10;
-            this.lb1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Lb1_MouseDown);
+            //this.lb1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Lb1_MouseDown);
+            this.lb1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Lb1_MouseUp);
             // 
             // listBox_Menu
             // 
@@ -678,9 +697,9 @@ namespace InventoryView
             this.copyToolStripMenuItem,
             this.wikiToolStripMenuItem,
             this.copyAllToolStripMenuItem,
-            this.copySelectedToolStripMenuItem });
+            this.copySelectedToolStripMenuItem});
             this.listBox_Menu.Name = "listBox_Menu";
-            this.listBox_Menu.Size = new System.Drawing.Size(181, 136);
+            this.listBox_Menu.Size = new System.Drawing.Size(181, 114);
             // 
             // copyToolStripMenuItem
             // 
@@ -735,6 +754,7 @@ namespace InventoryView
             this.Controls.Add(this.txtSearch);
             this.Controls.Add(this.tv);
             this.Name = "InventoryViewForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Inventory View";
             this.Load += new System.EventHandler(this.InventoryViewForm_Load);
             this.contextMenuStrip1.ResumeLayout(false);
